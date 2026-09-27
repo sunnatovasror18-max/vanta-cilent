@@ -1,0 +1,35 @@
+name: Build Vanta Client
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Install Gradle
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.8-bin.zip
+          unzip -q gradle-8.8-bin.zip
+          export PATH=$PATH:$(pwd)/gradle-8.8/bin
+
+      - name: Extract and Build
+        run: |
+          export PATH=$PATH:$(pwd)/gradle-8.8/bin
+          unzip vanta-client.zip
+          cd vanta-client
+          gradle build --no-daemon
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: vanta-client
+          path: vanta-client/build/libs/vanta-*.jar
